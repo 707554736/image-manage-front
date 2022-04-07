@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Result, Avatar, Tag, Input, Space, Select } from 'antd';
 import {
   CrownOutlined,
@@ -11,6 +11,8 @@ import ProLayout, {
   PageContainer,
 } from '@ant-design/pro-layout';
 import { ProFormSelect } from '@ant-design/pro-form';
+import { ImagePage } from '../imagePage';
+import { TagData, GetAllTags } from '@/utils/request';
 
 const defaultProps = {
   routes: [
@@ -37,6 +39,14 @@ const defaultProps = {
 
 export const BasicLayout = (props: BasicLayoutProps) => {
   const [pathname, setPathname] = useState('/welcome');
+  const [tags, setTags] = useState<TagData[]>([]);
+
+  useEffect(() => {
+    GetAllTags().then((res) => {
+      setTags(res);
+    });
+  }, []);
+
   return (
     <>
       <ProLayout
@@ -85,15 +95,20 @@ export const BasicLayout = (props: BasicLayoutProps) => {
             <Space align="center">
               <Select
                 style={{
-                  width: 240,
+                  width: '500px',
                 }}
+                maxTagCount="responsive"
+                mode="tags"
+                tagRender={(props) => {
+                  return <Tag closable>{props.label}</Tag>;
+                }}
+                options={tags.map((a) => {
+                  return {
+                    value: a.tag_id,
+                    label: a.tag_name_en || a.tag_name_cn || a.tag_name_jp,
+                  };
+                })}
               ></Select>
-              <Input.Search
-                key="search"
-                style={{
-                  width: 240,
-                }}
-              />
               <Button
                 key="3"
                 type="primary"
@@ -110,16 +125,7 @@ export const BasicLayout = (props: BasicLayoutProps) => {
               height: '120vh',
             }}
           >
-            <Result
-              status="404"
-              style={{
-                height: '100%',
-                background: '#fff',
-              }}
-              title="Hello World"
-              subTitle="Sorry, you are not authorized to access this page."
-              extra={<Button type="primary">Back Home</Button>}
-            />
+            <ImagePage></ImagePage>
           </div>
         </PageContainer>
       </ProLayout>
